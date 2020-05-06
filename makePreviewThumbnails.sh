@@ -30,18 +30,18 @@ len_in_seconds=$(echo $len | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
 intervel=$((len_in_seconds/num_thumb))
 frame_in_seconds=0
 frame=""
+mkdir ./.thumb/
 
 for i in $(seq $num_thumb); do
     frame_in_seconds=$((i*intervel))
     frame="$(printf '%02d' $(($frame_in_seconds/3600))):\
 $(printf '%02d' $(($frame_in_seconds%3600/60))):\
 $(printf '%02d' $(($frame_in_seconds%60)))"
-    ffmpeg -loglevel warning -ss $frame -i "$file" -vf scale=1080:-1 -vframes 1 "thumb_$(printf '%02d' $i).png"
-    width=`identify -format %w thumb_$(printf '%02d' $i).png`; \
-    convert "thumb_$(printf '%02d' $i).png" -gravity SouthEast -pointsize 50\
+    ffmpeg -loglevel warning -ss $frame -i "$file" -vf scale=1080:-1 -vframes 1 "./.thumb/thumb_$(printf '%02d' $i).png"
+    convert "./.thumb/thumb_$(printf '%02d' $i).png" -gravity SouthEast -pointsize 50\
           -stroke '#000C' -strokewidth 10 -annotate 0 $frame \
           -stroke  none   -fill white    -annotate 0 $frame \
-          "thumb_$(printf '%02d' $i).png"
+          "./.thumb/thumb_$(printf '%02d' $i).png"
 done
 
 
@@ -53,17 +53,16 @@ video=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name \
 audio=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name \
   -of default=noprint_wrappers=1:nokey=1 "$file")
 
-montage -tile x3 -shadow -geometry +10+10 -background white thumb_*.png "${file%.*}.png"
+montage -tile x3 -shadow -geometry +10+10 -background white ./.thumb/thumb_*.png "./.thumb/${file%.*}.png"
 
-convert "${file%.*}.png" -pointsize 50\
+convert "./.thumb/${file%.*}.png" -pointsize 50\
         -font "/System/Library/Fonts/PingFang.ttc" \
         -splice 0x200\
         -gravity NorthWest -annotate 0 "File: $file\nSize: $size\nDuration: $len"\
         -gravity NorthEast -annotate 0 "Resolution: $resolution\nFPS: $fps\nCodec: $video/$audio"\
         -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 85 -interlace JPEG -colorspace RGB "${file%.*}.jpg"
           
-rm thumb_*.png
-rm "${file%.*}.png"
+rm -rf ./.thumb
 
 trap "kill -9 $SPIN_PID" `seq 0 15`
 echo "Finished."
