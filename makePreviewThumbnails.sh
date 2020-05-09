@@ -1,7 +1,6 @@
 #!/bin/bash
 
-spin()
-{
+spin(){
   spinner="/|\\-/|\\-"
   while :
   do
