@@ -20,5 +20,5 @@ chmod +x ./previewThumbnails.sh
 ```
 ## Automator Quick Action Instillation
 ```
-cd ~/Downloads && curl -O https://github.com/receyuki/Preview-Thumbnails-Maker/raw/master/automatorQuickAction/MakePreviewThumbnails.workflow.zip && unzip ./MakePreviewThumbnails.workflow.zip && rm MakePreviewThumbnails.workflow.zip && open ./MakePreviewThumbnails.workflow
+cd ~/Downloads && curl -LO https://github.com/receyuki/Preview-Thumbnails-Maker/raw/master/automatorQuickAction/MakePreviewThumbnails.workflow.zip && unzip ./MakePreviewThumbnails.workflow.zip && rm MakePreviewThumbnails.workflow.zip && open ./MakePreviewThumbnails.workflow
 ```
