@@ -16,7 +16,7 @@ brew install ghostscript imagemagick ffmpeg
 ```
 curl -O https://raw.githubusercontent.com/receyuki/Preview-Thumbnails-Maker/master/previewThumbnails.sh
 chmod +x ./previewThumbnails.sh
-./previewThumbnails.sh youVideoFile.mp4
+./previewThumbnails.sh yourVideoFile.mp4
 ```
 ## Automator Quick Action Instillation
 ```
