@@ -1,5 +1,13 @@
 #!/bin/bash
 
+###################################################################
+#Script Name	:makePreviewThumbnails.sh
+#Description	:Making video preview thumbnails
+#Args    		  :Video file path
+#Author       :receyuki                                              
+#Email        :receyuki@gmail.com                                           
+###################################################################
+
 spin(){
   spinner="/|\\-/|\\-"
   while :

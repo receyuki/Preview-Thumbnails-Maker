@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>492</string>
+	<string>509</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -59,7 +59,15 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>for f in "$@"
+					<string>###################################################################
+#Script Name	:makePreviewThumbnails.sh
+#Description	:Making video preview thumbnails
+#Args    		:Video file path
+#Author       	:receyuki                                              
+#Email     		:receyuki@gmail.com                                           
+###################################################################
+
+for f in "$@"
 do
     filepath=$f
     cd `dirname "$filepath"`
@@ -216,7 +224,7 @@ done</string>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>740.000000:305.000000</string>
+				<string>501.000000:305.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
