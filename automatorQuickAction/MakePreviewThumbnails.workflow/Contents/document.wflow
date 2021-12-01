@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>509</string>
+	<string>512</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -105,9 +105,9 @@ $(printf '%02d' $(($frame_in_seconds%60)))"
     /usr/local/bin/convert "./.thumb/${file%.*}.png" -pointsize 50\
             -font "/System/Library/Fonts/PingFang.ttc" \
             -splice 0x200\
-            -gravity NorthWest -annotate 0 "File: $file\nSize: $size\nDuration: $len"\
-            -gravity NorthEast -annotate 0 "Resolution: $resolution\nFPS: $fps\nCodec: $video/$audio"\
-            -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 85 -interlace JPEG -colorspace RGB "${file%.*}.jpg"
+            -gravity NorthWest -annotate 0 "\ File: $file\n Size: $size\n Duration: $len"\
+            -gravity NorthEast -annotate 0 " Resolution: $resolution \n FPS: $fps \n Codec: $video/$audio "\
+            -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 95 -interlace JPEG -colorspace sRGB "${file%.*}.jpg"
             
     rm -rf ./.thumb
 	osascript -e 'display notification "'"Finish making thumbnail for $file"'" with title "Done"'
@@ -224,7 +224,7 @@ done</string>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>501.000000:305.000000</string>
+				<string>523.000000:687.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -257,7 +257,7 @@ done</string>
 		b3JTcGFjZV1OU0NhdGFsb2dOYW1lV05TQ29sb3KACIADEAaAAoAEVlN5c3Rl
 		bV8QD3N5c3RlbUJsdWVDb2xvctUaGw8cDR0eHyASXE5TQ29tcG9uZW50c1VO
 		U1JHQl8QEk5TQ3VzdG9tQ29sb3JTcGFjZUcwIDAgMSAxTxARMCAwIDAuOTk4
-		MTg4OTcyNQAQAYAFgAjTIyQNJSYnVE5TSURVTlNJQ0MQB4AGgAdPEQxIAAAM
+		MTk5MjI0NQAQAYAFgAjTIyQNJSYnVE5TSURVTlNJQ0MQB4AGgAdPEQxIAAAM
 		SExpbm8CEAAAbW50clJHQiBYWVogB84AAgAJAAYAMQAAYWNzcE1TRlQAAAAA
 		SUVDIHNSR0IAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1IUCAgAAAAAAAAAAAA
 		AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARY3BydAAA
