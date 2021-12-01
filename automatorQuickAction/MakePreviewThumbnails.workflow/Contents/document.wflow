@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>509</string>
+	<string>512</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -59,65 +59,87 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>###################################################################
+					<string>#!/bin/bash
+
+###################################################################
 #Script Name	:makePreviewThumbnails.sh
 #Description	:Making video preview thumbnails
-#Args    		:Video file path
-#Author       	:receyuki                                              
-#Email     		:receyuki@gmail.com                                           
+#Args    		  :Video file path
+#Author       :receyuki                                              
+#Email        :receyuki@gmail.com                                           
 ###################################################################
 
-for f in "$@"
-do
-    filepath=$f
-    cd `dirname "$filepath"`
-    file=`basename "$filepath"`
-    num_thumb=12
-    len=$(/usr/local/bin/ffmpeg -i "$file" 2&gt;&amp;1 | grep 'Duration' | cut -d ' ' -f 4 | sed 's/.\{4\}$//')
-    len_in_seconds=$(echo $len | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
-    intervel=$((len_in_seconds/num_thumb))
-    frame_in_seconds=0
-    frame=""
-	mkdir ./.thumb/
-    for i in $(seq $num_thumb); do
-        frame_in_seconds=$((i*intervel))
-        frame="$(printf '%02d' $(($frame_in_seconds/3600))):\
+spin(){
+  spinner="/|\\-/|\\-"
+  while :
+  do
+    for i in `seq 0 7`
+    do
+      echo -n "${spinner:$i:1}"
+      echo -en "\010"
+      sleep 1
+    done
+  done
+}
+
+echo "Start making preview thumbnails..."
+
+# Start the Spinner:
+spin &amp;
+# Make a note of its Process ID (PID):
+SPIN_PID=$!
+
+filepath=$1
+cd `dirname "$filepath"`
+file=`basename "$filepath"`
+num_thumb=12
+len=$(ffmpeg -i "$file" 2&gt;&amp;1 | grep 'Duration' | cut -d ' ' -f 4 | sed 's/.\{4\}$//')
+len_in_seconds=$(echo $len | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
+intervel=$((len_in_seconds/num_thumb))
+frame_in_seconds=0
+frame=""
+mkdir ./.thumb/
+
+for i in $(seq $num_thumb); do
+    frame_in_seconds=$((i*intervel))
+    frame="$(printf '%02d' $(($frame_in_seconds/3600))):\
 $(printf '%02d' $(($frame_in_seconds%3600/60))):\
 $(printf '%02d' $(($frame_in_seconds%60)))"
-        /usr/local/bin/ffmpeg -loglevel warning -ss $frame -i "$file" -vf scale=1080:-1 -vframes 1 "./.thumb/thumb_$(printf '%02d' $i).png"
-        /usr/local/bin/convert "./.thumb/thumb_$(printf '%02d' $i).png" -gravity SouthEast -pointsize 50\
-            -stroke '#000C' -strokewidth 10 -annotate 0 $frame \
-            -stroke  none   -fill white    -annotate 0 $frame \
-            "./.thumb/thumb_$(printf '%02d' $i).png"
-    done
-	
+    ffmpeg -loglevel warning -ss $frame -i "$file" -vf scale=1080:-1 -vframes 1 "./.thumb/thumb_$(printf '%02d' $i).png"
+    convert "./.thumb/thumb_$(printf '%02d' $i).png" -gravity SouthEast -pointsize 50\
+          -stroke '#000C' -strokewidth 10 -annotate 0 $frame \
+          -stroke  none   -fill white    -annotate 0 $frame \
+          "./.thumb/thumb_$(printf '%02d' $i).png"
+done
 
-    size=$(ls -lah "$file" | awk '{ print $5}')
-    resolution=$(/usr/local/bin/ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$file")
-    fps=$(/usr/local/bin/ffmpeg -i "$file" 2&gt;&amp;1 | sed -n "s/.*, \(.*\) fp.*/\1/p")
-    video=$(/usr/local/bin/ffprobe -v error -select_streams v:0 -show_entries stream=codec_name \
-    -of default=noprint_wrappers=1:nokey=1 "$file")
-    audio=$(/usr/local/bin/ffprobe -v error -select_streams a:0 -show_entries stream=codec_name \
-    -of default=noprint_wrappers=1:nokey=1 "$file")
 
-    /usr/local/bin/montage -tile x3 -shadow -geometry +10+10 -background white ./.thumb/thumb_*.png "./.thumb/${file%.*}.png"
+size=$(ls -lah "$file" | awk '{ print $5}')
+resolution=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$file")
+fps=$(ffmpeg -i "$file" 2&gt;&amp;1 | sed -n "s/.*, \(.*\) fp.*/\1/p")
+video=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name \
+  -of default=noprint_wrappers=1:nokey=1 "$file")
+audio=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name \
+  -of default=noprint_wrappers=1:nokey=1 "$file")
 
-    /usr/local/bin/convert "./.thumb/${file%.*}.png" -pointsize 50\
-            -font "/System/Library/Fonts/PingFang.ttc" \
-            -splice 0x200\
-            -gravity NorthWest -annotate 0 "File: $file\nSize: $size\nDuration: $len"\
-            -gravity NorthEast -annotate 0 "Resolution: $resolution\nFPS: $fps\nCodec: $video/$audio"\
-            -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 85 -interlace JPEG -colorspace RGB "${file%.*}.jpg"
-            
-    rm -rf ./.thumb
-	osascript -e 'display notification "'"Finish making thumbnail for $file"'" with title "Done"'
-done</string>
+montage -tile x3 -shadow -geometry +10+10 -background white ./.thumb/thumb_*.png "./.thumb/${file%.*}.png"
+
+convert "./.thumb/${file%.*}.png" -pointsize 50\
+        -font "/System/Library/Fonts/PingFang.ttc" \
+        -splice 0x200\
+        -gravity NorthWest -annotate 0 "\ File: $file\n Size: $size\n Duration: $len"\
+        -gravity NorthEast -annotate 0 " Resolution: $resolution \n FPS: $fps \n Codec: $video/$audio"\
+        -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 100 -interlace JPEG -colorspace sRGB "${file%.*}.jpg"
+          
+rm -rf ./.thumb
+
+trap "kill -9 $SPIN_PID" `seq 0 15`
+echo "Finished."</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
 					<key>inputMethod</key>
 					<integer>1</integer>
 					<key>shell</key>
-					<string>/bin/zsh</string>
+					<string>/bin/bash</string>
 					<key>source</key>
 					<string></string>
 				</dict>
@@ -224,7 +246,7 @@ done</string>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>501.000000:305.000000</string>
+				<string>523.000000:584.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -257,7 +279,7 @@ done</string>
 		b3JTcGFjZV1OU0NhdGFsb2dOYW1lV05TQ29sb3KACIADEAaAAoAEVlN5c3Rl
 		bV8QD3N5c3RlbUJsdWVDb2xvctUaGw8cDR0eHyASXE5TQ29tcG9uZW50c1VO
 		U1JHQl8QEk5TQ3VzdG9tQ29sb3JTcGFjZUcwIDAgMSAxTxARMCAwIDAuOTk4
-		MTg4OTcyNQAQAYAFgAjTIyQNJSYnVE5TSURVTlNJQ0MQB4AGgAdPEQxIAAAM
+		MTk5MjI0NQAQAYAFgAjTIyQNJSYnVE5TSURVTlNJQ0MQB4AGgAdPEQxIAAAM
 		SExpbm8CEAAAbW50clJHQiBYWVogB84AAgAJAAYAMQAAYWNzcE1TRlQAAAAA
 		SUVDIHNSR0IAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1IUCAgAAAAAAAAAAAA
 		AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARY3BydAAA
@@ -337,7 +359,7 @@ done</string>
 		<key>backgroundColorName</key>
 		<string>systemBlueColor</string>
 		<key>inputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
+		<string>com.apple.Automator.fileSystemObject.movie</string>
 		<key>outputTypeIdentifier</key>
 		<string>com.apple.Automator.nothing</string>
 		<key>presentationMode</key>
@@ -349,7 +371,7 @@ done</string>
 		<key>serviceApplicationPath</key>
 		<string>/System/Library/CoreServices/Finder.app</string>
 		<key>serviceInputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
+		<string>com.apple.Automator.fileSystemObject.movie</string>
 		<key>serviceOutputTypeIdentifier</key>
 		<string>com.apple.Automator.nothing</string>
 		<key>serviceProcessesInput</key>
