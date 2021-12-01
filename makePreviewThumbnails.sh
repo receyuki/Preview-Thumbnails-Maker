@@ -65,9 +65,9 @@ montage -tile x3 -shadow -geometry +10+10 -background white ./.thumb/thumb_*.png
 convert "./.thumb/${file%.*}.png" -pointsize 50\
         -font "/System/Library/Fonts/PingFang.ttc" \
         -splice 0x200\
-        -gravity NorthWest -annotate 0 "File: $file\nSize: $size\nDuration: $len"\
-        -gravity NorthEast -annotate 0 "Resolution: $resolution\nFPS: $fps\nCodec: $video/$audio"\
-        -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 85 -interlace JPEG -colorspace RGB "${file%.*}.jpg"
+        -gravity NorthWest -annotate 0 "\ File: $file\n Size: $size\n Duration: $len"\
+        -gravity NorthEast -annotate 0 " Resolution: $resolution \n FPS: $fps \n Codec: $video/$audio "\
+        -append -resize 1920x -sampling-factor 4:2:0 -strip -quality 95 -interlace JPEG -colorspace sRGB "${file%.*}.jpg"
           
 rm -rf ./.thumb
 
